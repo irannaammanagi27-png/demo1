@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Overview · Pocket Ledger{% endblock %}
+{% block content %}
+<section class="page-heading">
+  <div>
+    <div class="eyebrow">YOUR MONEY, MADE CLEAR</div>
+    <h1>Good things start with a clear picture.</h1>
+    <p class="page-subtitle">Here's how your money is moving this month.</p>
+  </div>
+  <a class="button button-primary" href="{{ url_for('new_transaction') }}"><span>＋</span> Add transaction</a>
+</section>
+
+<form class="month-picker" method="get" action="{{ url_for('index') }}">
+  <label for="month">MONTHLY OVERVIEW</label>
+  <input id="month" type="month" name="month" value="{{ month }}">
+  <button class="text-button" type="submit">View month <span>→</span></button>
+</form>
+
+<section class="summary-grid" aria-label="Monthly totals">
+  <article class="summary-card income-card">
+    <div class="card-top"><span class="summary-icon income-icon">↗</span><span class="card-label">TOTAL INCOME</span><span class="card-menu">•••</span></div>
+    <div class="summary-value">${{ "{:,.2f}".format(income) }}</div>
+    <div class="card-caption"><span class="trend-dot income-dot"></span> Money coming in this month</div>
+  </article>
+  <article class="summary-card expense-card">
+    <div class="card-top"><span class="summary-icon expense-icon">↙</span><span class="card-label">TOTAL EXPENSES</span><span class="card-menu">•••</span></div>
+    <div class="summary-value">${{ "{:,.2f}".format(expenses) }}</div>
+    <div class="card-caption"><span class="trend-dot expense-dot"></span> Money going out this month</div>
+  </article>
+  <article class="summary-card savings-card">
+    <div class="card-top"><span class="summary-icon savings-icon">✳</span><span class="card-label">MONTHLY SAVINGS</span><span class="card-menu">•••</span></div>
+    <div class="summary-value">${{ "{:,.2f}".format(savings) }}</div>
+    <div class="card-caption"><span class="trend-dot savings-dot"></span> Income minus expenses</div>
+  </article>
+</section>
+
+<section class="content-grid">
+  <article class="panel transactions-panel">
+    <div class="panel-heading">
+      <div><h2>Recent transactions</h2><p>Your activity for {{ month }}</p></div>
+      <a class="small-link" href="{{ url_for('new_transaction') }}">+ Add new</a>
+    </div>
+    {% if transactions %}
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>TRANSACTION</th><th>CATEGORY</th><th>DATE</th><th class="amount-heading">AMOUNT</th><th></th></tr></thead>
+        <tbody>
+          {% for transaction in transactions %}
+          <tr>
+            <td><div class="transaction-name"><span class="transaction-mark {{ transaction.kind }}">{{ "↗" if transaction.kind == "income" else "↙" }}</span><div><strong>{{ transaction.description or transaction.category }}</strong><span>{{ "Income" if transaction.kind == "income" else "Expense" }}</span></div></div></td>
+            <td><span class="category-pill">{{ transaction.category }}</span></td>
+            <td class="date-cell">{{ transaction.transaction_date }}</td>
+            <td class="amount-cell {{ transaction.kind }}">{{ "+" if transaction.kind == "income" else "−" }}${{ "{:,.2f}".format(transaction.amount) }}</td>
+            <td><div class="row-actions"><a href="{{ url_for('edit_transaction', transaction_id=transaction.id) }}" aria-label="Edit transaction">Edit</a><form method="post" action="{{ url_for('delete_transaction', transaction_id=transaction.id) }}" onsubmit="return confirm('Delete this transaction?')"><button type="submit" aria-label="Delete transaction">×</button></form></div></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="empty-state"><span class="empty-icon">↗</span><strong>A fresh start.</strong><p>No transactions this month yet. Add your first one to see your money story take shape.</p><a class="button button-secondary" href="{{ url_for('new_transaction') }}">Add your first transaction</a></div>
+    {% endif %}
+  </article>
+
+  <article class="panel spending-panel">
+    <div class="panel-heading">
+      <div><h2>Spending by category</h2><p>Where your expenses went</p></div>
+      <span class="chart-period">{{ month }}</span>
+    </div>
+    {% if chart %}
+      <img class="spending-chart" src="data:image/png;base64,{{ chart }}" alt="Horizontal bar chart of expenses by category">
+      <div class="chart-total"><span>Total expenses</span><strong>${{ "{:,.2f}".format(expenses) }}</strong></div>
+      <div class="category-list">
+        {% for category in categories %}
+        <div class="category-row"><span>{{ category.category }}</span><strong>${{ "{:,.2f}".format(category.total) }}</strong></div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="chart-empty"><span class="chart-empty-mark">◌</span><strong>No spending to chart</strong><p>Your expense categories will show up here.</p></div>
+    {% endif %}
+  </article>
+</section>
+<footer class="page-footer">A little more clarity, every month. <span>Made for your peace of mind <b>✦</b></span></footer>
+{% endblock %}

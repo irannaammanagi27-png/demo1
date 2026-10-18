@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f7fb">
+  <title>{% block title %}Pocket Ledger{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="{{ url_for('index') }}">
+        <span class="brand-mark">p</span>
+        <span>Pocket<span class="brand-light">Ledger</span></span>
+      </a>
+      <div class="nav-label">WORKSPACE</div>
+      <a class="nav-link active" href="{{ url_for('index') }}">
+        <span class="nav-icon">◫</span> Overview
+      </a>
+      <a class="nav-link" href="{{ url_for('new_transaction') }}">
+        <span class="nav-icon">＋</span> Add transaction
+      </a>
+      <div class="sidebar-note">
+        <span class="note-icon">✦</span>
+        <strong>Small steps add up.</strong>
+        <p>Keep an eye on where your money goes, one day at a time.</p>
+      </div>
+      <div class="sidebar-footer"><span class="status-dot"></span> Your finances, in focus</div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="breadcrumb">Your workspace <span>/</span> <strong>{% block breadcrumb %}Overview{% endblock %}</strong></div>
+        <div class="profile"><span class="profile-avatar">Y</span><span class="profile-name">Your account</span></div>
+      </header>
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="flash-stack">
+            {% for category, message in messages %}
+              <div class="flash {{ category }}">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</body>
+</html>
